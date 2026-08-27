@@ -13,6 +13,7 @@ from policies.services import unmet_policy_gates
 from staffing.services import is_team_leader_for_event, is_team_member_for_event
 
 from .models import Event, EventComment, Inquiry, Order, ReturnSheet
+from .services import autotransition_orders
 from .serializers import (
     ConvertToOrderSerializer,
     EventCommentSerializer,
@@ -135,9 +136,27 @@ class OrderViewSet(viewsets.ModelViewSet):
         return Order.objects.filter(event__client=user)
 
     def get_permissions(self):
-        if self.action in ('create', 'update', 'partial_update', 'destroy', 'approve'):
+        if self.action in ('create', 'update', 'partial_update', 'destroy', 'approve', 'complete'):
             return [IsPlannerOrAdmin()]
         return [IsAuthenticated()]
+
+    def list(self, request, *args, **kwargs):
+        autotransition_orders(self.get_queryset())
+        return super().list(request, *args, **kwargs)
+
+    def perform_destroy(self, instance):
+        if instance.order_status == Order.Status.APPROVED:
+            raise ValidationError('An approved order cannot be deleted.')
+        instance.delete()
+
+    @action(detail=True, methods=['post'])
+    def complete(self, request, pk=None):
+        order = self.get_object()
+        if order.execution_status != Order.ExecutionStatus.ONGOING:
+            raise ValidationError('Only an ongoing order can be marked complete.')
+        order.execution_status = Order.ExecutionStatus.COMPLETED
+        order.save(update_fields=['execution_status'])
+        return Response(OrderSerializer(order).data)
 
     @action(detail=True, methods=['post'])
     def sign(self, request, pk=None):

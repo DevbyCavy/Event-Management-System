@@ -62,7 +62,7 @@ export default function LoginPage() {
 
         {!selectedRole ? (
           <div key="step-1" className="animate-fade-slide-up">
-            <h1 className="mb-1 text-center text-xl font-semibold text-gray-900">Who's signing in?</h1>
+            <h1 className="mb-1 text-center text-xl font-bold text-gray-900">Who's signing in?</h1>
             <p className="mb-8 text-center text-sm text-gray-500">Choose your role to continue</p>
             <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 md:grid-cols-4">
               {ROLE_TILES.map(({ role, label, icon: Icon }) => (
@@ -93,7 +93,7 @@ export default function LoginPage() {
               <span className="mb-4 inline-flex items-center gap-1.5 rounded-full bg-brand-50 px-3 py-1 text-xs font-medium text-brand-700">
                 {ROLE_TILES.find((r) => r.role === selectedRole)?.label}
               </span>
-              <h1 className="mb-6 text-xl font-semibold text-gray-900">Sign in to Doves</h1>
+              <h1 className="mb-6 text-xl font-bold text-gray-900">Sign in to Doves</h1>
 
               <label className="mb-1 block text-sm font-medium text-gray-700">Username</label>
               <input

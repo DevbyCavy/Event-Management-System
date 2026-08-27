@@ -38,7 +38,7 @@ export default function StaffTeamsPage() {
     <div className="space-y-8">
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Staff</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Staff</h1>
           {canManage && (
             <button
               onClick={() => setShowAddStaff(true)}
@@ -77,7 +77,7 @@ export default function StaffTeamsPage() {
 
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Teams</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
           {canManage && (
             <button
               onClick={() => setShowAddTeam(true)}

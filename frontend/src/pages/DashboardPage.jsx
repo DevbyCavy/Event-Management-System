@@ -12,7 +12,7 @@ import api from '../api/client'
 import { useAuth } from '../auth/AuthContext'
 import * as roles from '../roles'
 import AnimatedNumber from '../components/AnimatedNumber'
-import MiniBarChart from '../components/MiniBarChart'
+import OrdersKanbanWidget from '../components/OrdersKanbanWidget'
 import RadialProgress from '../components/RadialProgress'
 import StatusBadge from '../components/StatusBadge'
 import { SkeletonBlock, SkeletonCard, SkeletonTable } from '../components/Skeleton'
@@ -73,22 +73,10 @@ export default function DashboardPage() {
   const recentEvents = events?.slice(0, 6) ?? []
   const pendingRequisitions = requisitions?.filter((r) => r.status === 'pending') ?? []
 
-  const categoryData = requisitions
-    ? Object.entries(
-        requisitions.reduce((acc, r) => {
-          acc[r.category] = (acc[r.category] || 0) + 1
-          return acc
-        }, {})
-      ).map(([label, value]) => ({ label: label.replace('_', ' '), value }))
-    : []
-
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-semibold text-gray-900">Welcome back, {user?.username}</h1>
-        <p className="text-sm text-gray-500">
-          {user?.is_superuser ? 'Superuser' : user?.groups?.join(', ') || 'No role assigned yet'}
-        </p>
+        <h1 className="text-2xl font-bold text-gray-900">Welcome back, {user?.username}</h1>
       </div>
 
       {visibleLinks.length > 0 && (
@@ -110,7 +98,7 @@ export default function DashboardPage() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr_260px]">
         <section className="rounded-xl border border-gray-200 bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold text-gray-900">Recent Events</h2>
+          <h2 className="mb-3 text-sm font-bold text-gray-900">Recent Events</h2>
           {events === null ? (
             <div className="space-y-2">
               {Array.from({ length: 4 }).map((_, i) => <SkeletonBlock key={i} className="h-8 w-full" />)}
@@ -136,7 +124,7 @@ export default function DashboardPage() {
         <section className="space-y-6">
           {canSeeRequisitions && (
             <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h2 className="mb-3 text-sm font-semibold text-gray-900">Pending Requisitions</h2>
+              <h2 className="mb-3 text-sm font-bold text-gray-900">Pending Requisitions</h2>
               {requisitions === null ? (
                 <SkeletonTable rows={3} cols={3} />
               ) : (
@@ -167,24 +155,13 @@ export default function DashboardPage() {
             </div>
           )}
 
-          {canSeeRequisitions && (
-            <div className="rounded-xl border border-gray-200 bg-white p-4">
-              <h2 className="mb-3 text-sm font-semibold text-gray-900">Requisitions by Category</h2>
-              {requisitions === null ? (
-                <SkeletonBlock className="h-32 w-full" />
-              ) : categoryData.length > 0 ? (
-                <MiniBarChart data={categoryData} />
-              ) : (
-                <p className="text-sm text-gray-400">No requisitions yet.</p>
-              )}
-            </div>
-          )}
+          {canSeeBoqs && <OrdersKanbanWidget />}
 
-          {!canSeeRequisitions && <SkeletonCard />}
+          {!canSeeRequisitions && !canSeeBoqs && <SkeletonCard />}
         </section>
 
         <section className="rounded-xl border border-gray-200 bg-white p-4">
-          <h2 className="mb-4 text-sm font-semibold text-gray-900">Overview</h2>
+          <h2 className="mb-4 text-sm font-bold text-gray-900">Overview</h2>
           {canSeeBoqs && (
             <div className="mb-4 flex justify-center">
               {boqFulfillment === null ? (

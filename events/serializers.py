@@ -19,7 +19,10 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = '__all__'
-        read_only_fields = ('signed_by', 'signed_at', 'order_status', 'approved_by', 'approved_at')
+        read_only_fields = (
+            'signed_by', 'signed_at', 'order_status', 'approved_by', 'approved_at',
+            'execution_status', 'ongoing_since',
+        )
 
 
 class ConvertToOrderSerializer(serializers.Serializer):

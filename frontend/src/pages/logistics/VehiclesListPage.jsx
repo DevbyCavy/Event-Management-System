@@ -58,7 +58,7 @@ export default function VehiclesListPage() {
     <div className="space-y-8">
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Vehicles</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Vehicles</h1>
           {canManage && (
             <button
               onClick={() => setShowAddVehicle(true)}
@@ -99,7 +99,7 @@ export default function VehiclesListPage() {
 
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Trips</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Trips</h1>
           {canManage && (
             <button
               onClick={() => setShowAssign(true)}

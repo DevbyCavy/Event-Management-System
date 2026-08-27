@@ -38,7 +38,7 @@ export default function CalendarPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Calendar</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Calendar</h1>
         <div className="flex items-center gap-2 text-sm">
           <label className="flex items-center gap-1">
             From <input type="date" className="input" value={start} onChange={(e) => setStart(e.target.value)} />
@@ -52,7 +52,7 @@ export default function CalendarPage() {
       <div className="space-y-4">
         {Object.entries(grouped).map(([date, dayEntries]) => (
           <div key={date} className="rounded-lg border border-gray-200 bg-white p-4">
-            <h2 className="mb-2 font-medium text-gray-900">
+            <h2 className="mb-2 font-bold text-gray-900">
               {new Date(date + 'T00:00:00').toLocaleDateString(undefined, { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}
             </h2>
             <ul className="space-y-1">

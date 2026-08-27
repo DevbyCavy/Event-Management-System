@@ -40,7 +40,7 @@ export default function PoliciesPage() {
     <div className="space-y-8">
       <div>
         <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-semibold text-gray-900">Policies</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Policies</h1>
           {isAdmin && (
             <button
               onClick={() => setShowAdd(true)}
@@ -83,7 +83,7 @@ export default function PoliciesPage() {
       </div>
 
       <div>
-        <h1 className="mb-4 text-2xl font-semibold text-gray-900">Approval History</h1>
+        <h1 className="mb-4 text-2xl font-bold text-gray-900">Approval History</h1>
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">

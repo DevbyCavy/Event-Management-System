@@ -52,7 +52,7 @@ export default function RsvpPage() {
 
   return (
     <CenteredCard>
-      <h1 className="mb-1 text-xl font-semibold text-gray-900">{guest.event_name}</h1>
+      <h1 className="mb-1 text-xl font-bold text-gray-900">{guest.event_name}</h1>
       <p className="mb-6 text-sm text-gray-500">
         {new Date(guest.event_date_start).toLocaleString()} · {guest.event_venue}
       </p>

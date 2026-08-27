@@ -58,7 +58,7 @@ export default function GuestsPage() {
       )}
 
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Guests</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Guests</h1>
         <div className="flex items-center gap-3">
           <select className="input" value={eventFilter} onChange={(e) => setEventFilter(e.target.value)}>
             <option value="">All events</option>

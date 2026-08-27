@@ -89,17 +89,17 @@ export default function EventDetailPage() {
       <Link to="/events" className="text-sm text-brand-700 hover:underline">
         ← Back to events
       </Link>
-      <h1 className="mt-2 mb-6 text-2xl font-semibold text-gray-900">{event.name}</h1>
+      <h1 className="mt-2 mb-6 text-2xl font-bold text-gray-900">{event.name}</h1>
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-[200px_1fr]">
         <section className="rounded-lg border border-gray-200 bg-white p-4">
-          <h2 className="mb-4 text-sm font-semibold uppercase tracking-wide text-gray-500">Stage</h2>
+          <h2 className="mb-4 text-sm font-bold uppercase tracking-wide text-gray-500">Stage</h2>
           <StatusTimeline currentIndex={currentIndex} />
         </section>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <section className="rounded-lg border border-gray-200 bg-white p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Event</h2>
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">Event</h2>
             <dl className="space-y-2 text-sm">
               <Row label="Type" value={event.type} />
               <Row label="Venue" value={event.venue} />
@@ -129,7 +129,7 @@ export default function EventDetailPage() {
           </section>
 
           <section className="rounded-lg border border-gray-200 bg-white p-4">
-            <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Order</h2>
+            <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">Order</h2>
             {order ? (
               <dl className="space-y-2 text-sm">
                 <Row label="Status" value={order.order_status} />
@@ -143,7 +143,7 @@ export default function EventDetailPage() {
 
           {budget && (
             <section className="col-span-1 rounded-lg border border-gray-200 bg-white p-4 sm:col-span-2">
-              <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Budget Summary</h2>
+              <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">Budget Summary</h2>
               <dl className="grid grid-cols-3 gap-4 text-sm">
                 <Row label="Planned" value={budget.planned_total} />
                 <Row label="Actual" value={budget.actual_total} />

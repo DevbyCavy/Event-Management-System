@@ -58,7 +58,7 @@ export default function BOQDetailPage() {
       <Link to="/boqs" className="text-sm text-brand-700 hover:underline">
         ← Back to BOQs
       </Link>
-      <h1 className="mt-2 mb-6 text-2xl font-semibold text-gray-900">BOQ #{boq.id}</h1>
+      <h1 className="mt-2 mb-6 text-2xl font-bold text-gray-900">BOQ #{boq.id}</h1>
 
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">

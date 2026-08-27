@@ -1,6 +1,8 @@
 @import "tailwindcss";
 
 @theme {
+  --font-sans: 'Montserrat', system-ui, 'Segoe UI', Roboto, sans-serif;
+
   --color-brand-50: #eaf1fa;
   --color-brand-100: #cfe0f2;
   --color-brand-200: #9dc0e6;
@@ -22,10 +24,14 @@ html, body, #root {
 
 body {
   margin: 0;
-  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  font-family: 'Montserrat', system-ui, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   background: #fafafa;
+}
+
+* {
+  font-family: inherit;
 }
 
 @layer components {

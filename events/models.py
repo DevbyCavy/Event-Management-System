@@ -55,6 +55,13 @@ class Order(models.Model):
         APPROVED = 'approved', 'Approved'
         CANCELLED = 'cancelled', 'Cancelled'
 
+    class ExecutionStatus(models.TextChoices):
+        """Operational fulfillment status, tracked separately from order_status (the approval workflow)."""
+        NEW = 'new', 'New'
+        ASSIGNED = 'assigned', 'Assigned'  # in the enum for parity; nothing currently sets this
+        ONGOING = 'ongoing', 'Ongoing'
+        COMPLETED = 'completed', 'Completed'
+
     inquiry = models.ForeignKey(Inquiry, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders')
     event = models.OneToOneField(Event, on_delete=models.CASCADE, related_name='order')
     signed_by = models.ForeignKey(
@@ -66,6 +73,12 @@ class Order(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.SET_NULL, null=True, blank=True, related_name='orders_approved'
     )
     approved_at = models.DateTimeField(null=True, blank=True)
+
+    execution_status = models.CharField(
+        max_length=20, choices=ExecutionStatus.choices, default=ExecutionStatus.NEW
+    )
+    deadline_datetime = models.DateTimeField(null=True, blank=True)
+    ongoing_since = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return f'Order for {self.event.name}'

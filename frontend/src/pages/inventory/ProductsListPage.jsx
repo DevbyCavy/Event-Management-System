@@ -34,7 +34,7 @@ export default function ProductsListPage() {
   return (
     <div>
       <div className="mb-4 flex items-center justify-between">
-        <h1 className="text-2xl font-semibold text-gray-900">Store Inventory</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Store Inventory</h1>
         {canManage && (
           <button
             onClick={() => setShowCreate(true)}

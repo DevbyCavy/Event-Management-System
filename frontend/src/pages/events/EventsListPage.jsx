@@ -26,7 +26,7 @@ export default function EventsListPage() {
 
   return (
     <div>
-      <h1 className="mb-4 text-2xl font-semibold text-gray-900">Events</h1>
+      <h1 className="mb-4 text-2xl font-bold text-gray-900">Events</h1>
       <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">

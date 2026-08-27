@@ -108,7 +108,7 @@ export default function TripMapPage() {
       <Link to="/vehicles" className="text-sm text-brand-700 hover:underline">
         ← Back to vehicles
       </Link>
-      <h1 className="mt-2 mb-4 text-2xl font-semibold text-gray-900">Trip #{trip.id}</h1>
+      <h1 className="mt-2 mb-4 text-2xl font-bold text-gray-900">Trip #{trip.id}</h1>
 
       <div className="mb-4 flex flex-wrap items-center gap-3">
         <span className="rounded-full bg-gray-100 px-3 py-1 text-sm font-medium text-gray-700">
@@ -143,7 +143,7 @@ export default function TripMapPage() {
 
       {isAssignedDriver && (
         <div className="mt-4 rounded-lg border border-gray-200 bg-white p-4">
-          <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500">Driver Controls</h2>
+          <h2 className="mb-3 text-sm font-bold uppercase tracking-wide text-gray-500">Driver Controls</h2>
           <div className="flex flex-wrap items-center gap-3">
             {trip.status === 'scheduled' && (
               <button
