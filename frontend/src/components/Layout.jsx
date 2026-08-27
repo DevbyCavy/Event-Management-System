@@ -10,12 +10,13 @@ import {
   LayoutDashboard,
   ListChecks,
   LogOut,
+  Package,
+  Radar,
+  Receipt,
   Search,
   ShieldCheck,
   Truck,
-  UserPlus,
   Users,
-  Wallet,
 } from 'lucide-react'
 import { useAuth } from '../auth/AuthContext'
 import * as roles from '../roles'
@@ -25,16 +26,17 @@ import NotificationBell from './NotificationBell'
 const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, roles: null },
   { to: '/inquiries', label: 'Inquiries', icon: Inbox, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
+  { to: '/quotations', label: 'Quotations', icon: Receipt, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.CLIENT] },
   { to: '/orders', label: 'Orders', icon: FileText, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
   { to: '/events', label: 'Events', icon: CalendarDays, roles: null },
   { to: '/boqs', label: 'BOQs', icon: ListChecks, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
   { to: '/requisitions', label: 'Requisitions', icon: ClipboardList, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.ACCOUNTS] },
   { to: '/products', label: 'Store Inventory', icon: Boxes, roles: [roles.ADMIN, roles.STOREKEEPER] },
+  { to: '/products/list', label: 'Products', icon: Package, roles: [roles.ADMIN, roles.STOREKEEPER] },
   { to: '/staff', label: 'Staff & Teams', icon: Users, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
   { to: '/vehicles', label: 'Vehicles & Trips', icon: Truck, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.TEAM_LEADER] },
+  { to: '/tracking', label: 'Tracking Orders', icon: Radar, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.TEAM_LEADER] },
   { to: '/vendors', label: 'Vendors', icon: Briefcase, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.VENDOR] },
-  { to: '/budget', label: 'Budget & Payments', icon: Wallet, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.ACCOUNTS] },
-  { to: '/guests', label: 'Guests', icon: UserPlus, roles: null },
   { to: '/calendar', label: 'Calendar', icon: CalendarDays, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
   { to: '/policies', label: 'Policies', icon: ShieldCheck, roles: null },
 ]
@@ -52,6 +54,7 @@ export default function Layout() {
       <aside className="flex w-64 shrink-0 flex-col border-r border-gray-200 bg-white">
         <div className="flex items-center gap-2 px-5 py-5">
           <img src={logo} alt="Doves" className="h-9 w-auto" />
+          <span className="text-lg font-extrabold tracking-tight text-brand-900">Doves System</span>
         </div>
         <nav className="flex-1 space-y-0.5 overflow-y-auto px-3">
           {visibleItems.map((item) => {
@@ -79,6 +82,7 @@ export default function Layout() {
             )
           })}
         </nav>
+        <p className="px-5 py-3 text-[11px] text-gray-300">© {new Date().getFullYear()} Doves. All rights reserved.</p>
       </aside>
 
       <div className="flex min-w-0 flex-1 flex-col">

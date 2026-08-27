@@ -2,6 +2,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { CheckCircle2, CircleCheck, HardHat, Inbox, MapPin, XCircle, Zap } from 'lucide-react'
 import api from '../api/client'
+import ConfirmModal from './ConfirmModal'
 import { SkeletonBlock } from './Skeleton'
 
 const TABS = [
@@ -26,6 +27,7 @@ export default function OrdersKanbanWidget() {
   const [teamsByEvent, setTeamsByEvent] = useState({})
   const [activeTab, setActiveTab] = useState('new')
   const [busyId, setBusyId] = useState(null)
+  const [confirmOrder, setConfirmOrder] = useState(null)
 
   const load = useCallback(() => {
     Promise.all([
@@ -58,11 +60,12 @@ export default function OrdersKanbanWidget() {
 
   const eventFor = (order) => events.find((e) => e.id === order.event)
 
-  const handleDone = async (order) => {
-    if (!window.confirm('Mark this order as completed?')) return
+  const handleDone = async () => {
+    const order = confirmOrder
     setBusyId(order.id)
     try {
       await api.post(`/orders/${order.id}/complete/`)
+      setConfirmOrder(null)
       load()
     } finally {
       setBusyId(null)
@@ -121,7 +124,7 @@ export default function OrdersKanbanWidget() {
                 hasBoq={boqOrderIds.has(order.id)}
                 teamNames={teamsByEvent[order.event] ?? []}
                 busy={busyId === order.id}
-                onDone={() => handleDone(order)}
+                onDone={() => setConfirmOrder(order)}
                 onTransition={load}
               />
             ))}
@@ -135,6 +138,18 @@ export default function OrdersKanbanWidget() {
             </Link>
           )}
         </>
+      )}
+
+      {confirmOrder && (
+        <ConfirmModal
+          title="Mark as Completed"
+          message="Mark this order as completed?"
+          confirmLabel="Mark Completed"
+          danger={false}
+          busy={busyId === confirmOrder.id}
+          onConfirm={handleDone}
+          onCancel={() => setConfirmOrder(null)}
+        />
       )}
     </div>
   )

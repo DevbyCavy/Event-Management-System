@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react'
-import { useNavigate } from 'react-router-dom'
 import api from '../../api/client'
 import Modal from '../../components/Modal'
-import { useAuth } from '../../auth/AuthContext'
+import CreateQuotationModal from '../../components/CreateQuotationModal'
 import { SkeletonTable } from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 
@@ -20,7 +19,7 @@ export default function InquiriesListPage() {
   const [inquiries, setInquiries] = useState(null)
   const [error, setError] = useState('')
   const [showCreate, setShowCreate] = useState(false)
-  const [convertingId, setConvertingId] = useState(null)
+  const [quotingInquiry, setQuotingInquiry] = useState(null)
 
   const load = () => {
     api
@@ -69,10 +68,10 @@ export default function InquiriesListPage() {
                 <td className="px-4 py-2 text-right">
                   {inquiry.status === 'new' && (
                     <button
-                      onClick={() => setConvertingId(inquiry.id)}
+                      onClick={() => setQuotingInquiry(inquiry)}
                       className="text-sm font-medium text-brand-700 hover:underline"
                     >
-                      Convert to Order
+                      Create Quotation
                     </button>
                   )}
                 </td>
@@ -92,11 +91,11 @@ export default function InquiriesListPage() {
       {showCreate && (
         <CreateInquiryModal onClose={() => setShowCreate(false)} onCreated={() => { setShowCreate(false); load() }} />
       )}
-      {convertingId && (
-        <ConvertToOrderModal
-          inquiryId={convertingId}
-          onClose={() => setConvertingId(null)}
-          onConverted={() => { setConvertingId(null); load() }}
+      {quotingInquiry && (
+        <CreateQuotationModal
+          inquiry={quotingInquiry}
+          onClose={() => setQuotingInquiry(null)}
+          onCreated={() => { setQuotingInquiry(null); load() }}
         />
       )}
     </div>
@@ -154,96 +153,6 @@ function CreateInquiryModal({ onClose, onCreated }) {
           className="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
         >
           {submitting ? 'Creating…' : 'Create Inquiry'}
-        </button>
-      </form>
-    </Modal>
-  )
-}
-
-function ConvertToOrderModal({ inquiryId, onClose, onConverted }) {
-  const { user } = useAuth()
-  const [users, setUsers] = useState([])
-  const [form, setForm] = useState({
-    client_id: '', planner_id: user?.id ?? '', name: '', type: '',
-    date_start: '', date_end: '', venue: '', classification: 'middle',
-  })
-  const [error, setError] = useState('')
-  const [submitting, setSubmitting] = useState(false)
-
-  useEffect(() => {
-    api.get('/users/').then((res) => setUsers(res.data.results ?? res.data)).catch(() => {})
-  }, [])
-
-  const clients = users.filter((u) => u.groups.includes('Client'))
-  const planners = users.filter((u) => u.groups.includes('Event Planner') || u.is_superuser)
-
-  const set = (field) => (e) => setForm({ ...form, [field]: e.target.value })
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setSubmitting(true)
-    setError('')
-    try {
-      await api.post(`/inquiries/${inquiryId}/convert-to-order/`, form)
-      onConverted()
-    } catch {
-      setError('Could not convert this inquiry. Check the fields and try again.')
-    } finally {
-      setSubmitting(false)
-    }
-  }
-
-  return (
-    <Modal title="Convert to Order" onClose={onClose}>
-      <form onSubmit={handleSubmit} className="space-y-3">
-        <Field label="Client">
-          <select required className="input" value={form.client_id} onChange={set('client_id')}>
-            <option value="">Select a client…</option>
-            {clients.map((u) => (
-              <option key={u.id} value={u.id}>{u.username}</option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Planner">
-          <select required className="input" value={form.planner_id} onChange={set('planner_id')}>
-            {planners.map((u) => (
-              <option key={u.id} value={u.id}>{u.username}</option>
-            ))}
-          </select>
-        </Field>
-        <Field label="Event name">
-          <input required className="input" value={form.name} onChange={set('name')} />
-        </Field>
-        <Field label="Event type">
-          <input required className="input" value={form.type} onChange={set('type')} />
-        </Field>
-        <Field label="Venue">
-          <input required className="input" value={form.venue} onChange={set('venue')} />
-        </Field>
-        <div className="grid grid-cols-2 gap-3">
-          <Field label="Starts">
-            <input required type="datetime-local" className="input" value={form.date_start} onChange={set('date_start')} />
-          </Field>
-          <Field label="Ends">
-            <input required type="datetime-local" className="input" value={form.date_end} onChange={set('date_end')} />
-          </Field>
-        </div>
-        <Field label="Classification">
-          <select className="input" value={form.classification} onChange={set('classification')}>
-            <option value="high">High</option>
-            <option value="middle">Middle</option>
-            <option value="low">Low</option>
-          </select>
-        </Field>
-
-        {error && <p className="text-sm text-red-600">{error}</p>}
-
-        <button
-          type="submit"
-          disabled={submitting}
-          className="w-full rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:opacity-60"
-        >
-          {submitting ? 'Converting…' : 'Convert to Order'}
         </button>
       </form>
     </Modal>

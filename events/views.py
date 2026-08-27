@@ -1,7 +1,7 @@
 from django.contrib.auth import get_user_model
 from django.db.models import Q
 from django.utils import timezone
-from rest_framework import mixins, status, viewsets
+from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
 from rest_framework.exceptions import PermissionDenied, ValidationError
 from rest_framework.permissions import IsAuthenticated
@@ -15,7 +15,6 @@ from staffing.services import is_team_leader_for_event, is_team_member_for_event
 from .models import Event, EventComment, Inquiry, Order, ReturnSheet
 from .services import autotransition_orders
 from .serializers import (
-    ConvertToOrderSerializer,
     EventCommentSerializer,
     EventSerializer,
     InquirySerializer,
@@ -30,41 +29,6 @@ class InquiryViewSet(viewsets.ModelViewSet):
     queryset = Inquiry.objects.all()
     serializer_class = InquirySerializer
     permission_classes = [IsPlannerOrAdmin]
-
-    @action(detail=True, methods=['post'], url_path='convert-to-order')
-    def convert_to_order(self, request, pk=None):
-        inquiry = self.get_object()
-        if inquiry.status == Inquiry.Status.CONVERTED:
-            raise ValidationError('This inquiry has already been converted.')
-
-        serializer = ConvertToOrderSerializer(data=request.data)
-        serializer.is_valid(raise_exception=True)
-        data = serializer.validated_data
-
-        try:
-            client = User.objects.get(pk=data['client_id'])
-        except User.DoesNotExist:
-            raise ValidationError({'client_id': 'No such user.'})
-
-        planner_id = data.get('planner_id')
-        planner = User.objects.get(pk=planner_id) if planner_id else request.user
-
-        event = Event.objects.create(
-            name=data['name'],
-            type=data['type'],
-            client=client,
-            planner=planner,
-            date_start=data['date_start'],
-            date_end=data['date_end'],
-            venue=data['venue'],
-            classification=data['classification'],
-        )
-        order = Order.objects.create(inquiry=inquiry, event=event)
-
-        inquiry.status = Inquiry.Status.CONVERTED
-        inquiry.save(update_fields=['status'])
-
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
 
 
 class EventViewSet(viewsets.ModelViewSet):

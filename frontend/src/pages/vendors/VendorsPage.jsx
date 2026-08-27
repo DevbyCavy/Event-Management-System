@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { Building2, Handshake } from 'lucide-react'
 import api from '../../api/client'
 import Modal from '../../components/Modal'
 import { useAuth } from '../../auth/AuthContext'
@@ -13,10 +14,16 @@ const CONTRACT_STATUS_STYLES = {
   cancelled: 'bg-red-100 text-red-700',
 }
 
+const TABS = [
+  { key: 'bookings', label: 'Bookings' },
+  { key: 'vendors', label: 'Vendors' },
+]
+
 export default function VendorsPage() {
   const { hasRole } = useAuth()
   const canManage = hasRole(roles.ADMIN, roles.EVENT_PLANNER)
 
+  const [activeTab, setActiveTab] = useState('bookings')
   const [vendors, setVendors] = useState(null)
   const [bookings, setBookings] = useState(null)
   const [events, setEvents] = useState([])
@@ -43,56 +50,24 @@ export default function VendorsPage() {
   if (!vendors || !bookings) return <SkeletonTable />
 
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Vendor Directory</h1>
-          {canManage && (
-            <button
-              onClick={() => setShowAddVendor(true)}
-              className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              Add Vendor
-            </button>
-          )}
-        </div>
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
-          <table className="min-w-full divide-y divide-gray-200 text-sm">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">Name</th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">Category</th>
-                <th className="px-4 py-2 text-left font-medium text-gray-500">Contact</th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-100">
-              {vendors.map((v) => (
-                <tr key={v.id} className="hover:bg-gray-50">
-                  <td className="px-4 py-2">{v.name}</td>
-                  <td className="px-4 py-2 text-gray-700">{v.category}</td>
-                  <td className="px-4 py-2 text-gray-700">{v.contact_email || v.contact_phone || '—'}</td>
-                </tr>
-              ))}
-              {vendors.length === 0 && (
-                <tr><td colSpan={3} className="px-4 py-6 text-center text-gray-500">No vendors yet.</td></tr>
-              )}
-            </tbody>
-          </table>
-        </div>
+    <div>
+      <h1 className="mb-4 text-2xl font-bold text-gray-900">Vendors</h1>
+
+      <div className="mb-4 flex w-fit flex-wrap gap-1 rounded-full bg-gray-100 p-1 text-xs">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded-full px-4 py-1.5 font-medium transition-colors duration-150 ${
+              activeTab === tab.key ? 'bg-white text-brand-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label} ({tab.key === 'bookings' ? bookings.length : vendors.length})
+          </button>
+        ))}
       </div>
 
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Bookings</h1>
-          {canManage && (
-            <button
-              onClick={() => setShowBookVendor(true)}
-              className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              Book Vendor
-            </button>
-          )}
-        </div>
+      {activeTab === 'bookings' && (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
@@ -122,7 +97,54 @@ export default function VendorsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      )}
+
+      {activeTab === 'vendors' && (
+        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <table className="min-w-full divide-y divide-gray-200 text-sm">
+            <thead className="bg-gray-50">
+              <tr>
+                <th className="px-4 py-2 text-left font-medium text-gray-500">Name</th>
+                <th className="px-4 py-2 text-left font-medium text-gray-500">Category</th>
+                <th className="px-4 py-2 text-left font-medium text-gray-500">Contact</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-gray-100">
+              {vendors.map((v) => (
+                <tr key={v.id} className="hover:bg-gray-50">
+                  <td className="px-4 py-2">{v.name}</td>
+                  <td className="px-4 py-2 text-gray-700">{v.category}</td>
+                  <td className="px-4 py-2 text-gray-700">{v.contact_email || v.contact_phone || '—'}</td>
+                </tr>
+              ))}
+              {vendors.length === 0 && (
+                <tr><td colSpan={3} className="px-4 py-6 text-center text-gray-500">No vendors yet.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      )}
+
+      {canManage && activeTab === 'bookings' && (
+        <button
+          onClick={() => setShowBookVendor(true)}
+          aria-label="Book Vendor"
+          title="Book Vendor"
+          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-500 ease-out hover:scale-110 hover:rotate-12 hover:bg-brand-700 hover:shadow-xl"
+        >
+          <Handshake size={24} />
+        </button>
+      )}
+      {canManage && activeTab === 'vendors' && (
+        <button
+          onClick={() => setShowAddVendor(true)}
+          aria-label="Add Vendor"
+          title="Add Vendor"
+          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-500 ease-out hover:scale-110 hover:rotate-12 hover:bg-brand-700 hover:shadow-xl"
+        >
+          <Building2 size={24} />
+        </button>
+      )}
 
       {showAddVendor && (
         <AddVendorModal onClose={() => setShowAddVendor(false)} onCreated={() => { setShowAddVendor(false); load() }} />

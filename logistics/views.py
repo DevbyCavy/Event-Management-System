@@ -1,4 +1,5 @@
 from django.db import transaction
+from django.db.models import ProtectedError
 from django.utils import timezone
 from rest_framework import mixins, viewsets
 from rest_framework.decorators import action
@@ -21,6 +22,12 @@ class VehicleViewSet(viewsets.ModelViewSet):
         if self.action in ('create', 'update', 'partial_update', 'destroy'):
             return [IsPlannerOrAdmin()]
         return [IsAuthenticated()]
+
+    def perform_destroy(self, instance):
+        try:
+            instance.delete()
+        except ProtectedError:
+            raise ValidationError('This vehicle has trip assignments and cannot be deleted.')
 
 
 class VehicleAssignmentViewSet(viewsets.ModelViewSet):
@@ -124,13 +131,7 @@ class TripViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
     @action(detail=True, methods=['get'], url_path='location/latest')
     def location_latest(self, request, pk=None):
         trip = self.get_object()
-        user = request.user
-        is_assigned_driver = False
-        staff = get_staff_profile(user)
-        if staff and trip.vehicle_assignment.driver_id == staff.id:
-            is_assigned_driver = True
-        if not (in_group(user, ADMIN) or in_group(user, EVENT_PLANNER) or is_assigned_driver):
-            raise PermissionDenied('Not allowed to view this trip\'s location.')
+        self._require_view_access(trip)
 
         latest = trip.pings.order_by('-recorded_at').first()
         if not latest:
@@ -140,3 +141,18 @@ class TripViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, viewsets.Gen
         data = LocationPingSerializer(latest).data
         data['seconds_since_ping'] = int(seconds_ago)
         return Response(data)
+
+    @action(detail=True, methods=['get'], url_path='location/history')
+    def location_history(self, request, pk=None):
+        trip = self.get_object()
+        self._require_view_access(trip)
+
+        pings = trip.pings.order_by('recorded_at')
+        return Response(LocationPingSerializer(pings, many=True).data)
+
+    def _require_view_access(self, trip):
+        user = self.request.user
+        staff = get_staff_profile(user)
+        is_assigned_driver = bool(staff and trip.vehicle_assignment.driver_id == staff.id)
+        if not (in_group(user, ADMIN) or in_group(user, EVENT_PLANNER) or is_assigned_driver):
+            raise PermissionDenied('Not allowed to view this trip\'s location.')

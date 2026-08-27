@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { ClipboardPlus } from 'lucide-react'
 import api from '../../api/client'
 import Modal from '../../components/Modal'
 import { useAuth } from '../../auth/AuthContext'
@@ -16,6 +17,14 @@ const STATUS_STYLES = {
   processed: 'bg-green-100 text-green-800',
 }
 
+const STATUS_FILTERS = [
+  { key: 'all', label: 'All' },
+  { key: 'pending', label: 'Pending' },
+  { key: 'approved', label: 'Approved' },
+  { key: 'rejected', label: 'Rejected' },
+  { key: 'processed', label: 'Processed' },
+]
+
 const EMPTY_REQUISITION = { event: '', category: 'other', description: '', amount_estimate: '' }
 
 export default function RequisitionsListPage() {
@@ -30,6 +39,7 @@ export default function RequisitionsListPage() {
   const [busyId, setBusyId] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [processingId, setProcessingId] = useState(null)
+  const [statusFilter, setStatusFilter] = useState('all')
 
   const load = () => {
     Promise.all([api.get('/requisitions/'), api.get('/events/')])
@@ -60,18 +70,27 @@ export default function RequisitionsListPage() {
   if (error) return <p className="text-red-600">{error}</p>
   if (!requisitions) return <SkeletonTable />
 
+  const visibleRequisitions = statusFilter === 'all' ? requisitions : requisitions.filter((r) => r.status === statusFilter)
+
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Requisitions</h1>
-        {isPlannerOrAdmin && (
-          <button
-            onClick={() => setShowCreate(true)}
-            className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-          >
-            New Requisition
-          </button>
-        )}
+        <div className="mt-2 flex flex-wrap gap-1 text-xs">
+          {STATUS_FILTERS.map((f) => (
+            <button
+              key={f.key}
+              onClick={() => setStatusFilter(f.key)}
+              className={`rounded-full border px-2.5 py-1 font-medium transition-colors duration-150 ${
+                statusFilter === f.key
+                  ? 'border-brand-600 bg-brand-50 text-brand-700'
+                  : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
+              }`}
+            >
+              {f.label}
+            </button>
+          ))}
+        </div>
       </div>
       {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
 
@@ -88,7 +107,7 @@ export default function RequisitionsListPage() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {requisitions.map((req) => (
+            {visibleRequisitions.map((req) => (
               <tr key={req.id} className="hover:bg-gray-50">
                 <td className="px-4 py-2">{eventName(req.event)}</td>
                 <td className="px-4 py-2 text-gray-700 capitalize">{req.category.replace('_', ' ')}</td>
@@ -127,7 +146,7 @@ export default function RequisitionsListPage() {
                 </td>
               </tr>
             ))}
-            {requisitions.length === 0 && (
+            {visibleRequisitions.length === 0 && (
               <tr>
                 <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
                   No requisitions yet.
@@ -137,6 +156,17 @@ export default function RequisitionsListPage() {
           </tbody>
         </table>
       </div>
+
+      {isPlannerOrAdmin && (
+        <button
+          onClick={() => setShowCreate(true)}
+          aria-label="New Requisition"
+          title="New Requisition"
+          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-500 ease-out hover:scale-110 hover:rotate-12 hover:bg-brand-700 hover:shadow-xl"
+        >
+          <ClipboardPlus size={24} />
+        </button>
+      )}
 
       {showCreate && (
         <CreateRequisitionModal

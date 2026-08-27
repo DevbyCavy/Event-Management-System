@@ -9,8 +9,15 @@ const POLL_INTERVAL_MS = 5000
 
 function Recenter({ position }) {
   const map = useMap()
+  const zoomedRef = useRef(false)
   useEffect(() => {
-    if (position) map.setView(position, map.getZoom())
+    if (!position) return
+    if (!zoomedRef.current) {
+      map.setView(position, 14)
+      zoomedRef.current = true
+    } else {
+      map.panTo(position)
+    }
   }, [position, map])
   return null
 }

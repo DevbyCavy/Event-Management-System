@@ -1,12 +1,14 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ClipboardPlus, Eye, Pencil, Trash2 } from 'lucide-react'
+import { ClipboardCheck, ClipboardPlus, Eye, Pencil, Trash2 } from 'lucide-react'
 import api from '../../api/client'
 import { useAuth } from '../../auth/AuthContext'
 import * as roles from '../../roles'
+import ConfirmModal from '../../components/ConfirmModal'
 import CreateOrderModal from '../../components/CreateOrderModal'
 import OrderViewModal from '../../components/OrderViewModal'
 import OrderEditModal from '../../components/OrderEditModal'
+import ReturnsChecklistModal from '../../components/ReturnsChecklistModal'
 import { SkeletonTable } from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 
@@ -17,10 +19,18 @@ const STATUS_STYLES = {
   cancelled: 'bg-red-100 text-red-700',
 }
 
-const APPROVAL_FILTERS = [
+const EXECUTION_STYLES = {
+  new: 'bg-orange-100 text-orange-600',
+  assigned: 'bg-orange-100 text-orange-600',
+  ongoing: 'bg-purple-100 text-purple-600',
+  completed: 'bg-green-100 text-green-600',
+}
+
+const EXECUTION_FILTERS = [
   { key: 'all', label: 'All' },
-  { key: 'pending', label: 'Pending', statuses: ['draft', 'signed'] },
-  { key: 'approved', label: 'Approved', statuses: ['approved'] },
+  { key: 'new', label: 'New', statuses: ['new', 'assigned'] },
+  { key: 'ongoing', label: 'Ongoing', statuses: ['ongoing'] },
+  { key: 'completed', label: 'Completed', statuses: ['completed'] },
 ]
 
 export default function OrdersListPage() {
@@ -28,13 +38,17 @@ export default function OrdersListPage() {
   const [orders, setOrders] = useState(null)
   const [events, setEvents] = useState({})
   const [users, setUsers] = useState([])
+  const [boqByOrder, setBoqByOrder] = useState({})
+  const [stockOuts, setStockOuts] = useState([])
   const [error, setError] = useState('')
   const [actionError, setActionError] = useState('')
   const [busyId, setBusyId] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [viewOrder, setViewOrder] = useState(null)
   const [editOrder, setEditOrder] = useState(null)
-  const [approvalFilter, setApprovalFilter] = useState('all')
+  const [confirmTarget, setConfirmTarget] = useState(null)
+  const [executionFilter, setExecutionFilter] = useState('all')
+  const [returnsOrder, setReturnsOrder] = useState(null)
 
   const isPlannerOrAdmin = hasRole(roles.ADMIN, roles.EVENT_PLANNER)
 
@@ -54,20 +68,41 @@ export default function OrdersListPage() {
   useEffect(() => {
     api.get('/users/').then((res) => setUsers(res.data.results ?? res.data)).catch(() => {})
   }, [])
+  useEffect(() => {
+    api
+      .get('/boqs/')
+      .then((res) => {
+        const list = res.data.results ?? res.data
+        setBoqByOrder(Object.fromEntries(list.map((b) => [b.event, b.id])))
+      })
+      .catch(() => {})
+  }, [])
+  const loadReturnsState = () => {
+    api.get('/stock-out/').then((res) => setStockOuts(res.data.results ?? res.data)).catch(() => {})
+  }
+  useEffect(loadReturnsState, [])
 
   const canSign = (order) => order.order_status === 'draft' && (isPlannerOrAdmin || events[order.event]?.client === user?.id)
   const canApprove = (order) => order.order_status === 'signed' && isPlannerOrAdmin
   const canDelete = (order) => isPlannerOrAdmin && order.order_status !== 'approved'
+  const canEdit = (order) => isPlannerOrAdmin && order.execution_status !== 'completed'
 
-  const deleteOrder = async (order) => {
-    if (!window.confirm(`Delete the order for "${events[order.event]?.name ?? `Event #${order.event}`}"?`)) return
+  const needsReturnsChecklist = (order) => {
+    const returnable = stockOuts.filter((so) => so.product_returnable && so.event === order.event)
+    return returnable.length > 0 && returnable.some((so) => !so.returned && !so.missing_reported_at)
+  }
+
+  const deleteOrder = async () => {
+    const order = confirmTarget
     setBusyId(order.id)
     setActionError('')
     try {
       await api.delete(`/orders/${order.id}/`)
+      setConfirmTarget(null)
       load()
     } catch (err) {
       setActionError(Array.isArray(err.response?.data) ? err.response.data.join(' ') : 'Could not delete this order.')
+      setConfirmTarget(null)
     } finally {
       setBusyId(null)
     }
@@ -94,20 +129,22 @@ export default function OrdersListPage() {
   if (error) return <p className="text-red-600">{error}</p>
   if (!orders) return <SkeletonTable />
 
-  const approvalStatuses = APPROVAL_FILTERS.find((f) => f.key === approvalFilter)?.statuses
-  const visibleOrders = approvalStatuses ? orders.filter((o) => approvalStatuses.includes(o.order_status)) : orders
+  const executionStatuses = EXECUTION_FILTERS.find((f) => f.key === executionFilter)?.statuses
+  const visibleOrders = executionStatuses
+    ? orders.filter((o) => executionStatuses.includes(o.execution_status))
+    : orders
 
   return (
     <div>
       <div className="mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Orders</h1>
         <div className="mt-2 flex flex-wrap gap-1 text-xs">
-          {APPROVAL_FILTERS.map((f) => (
+          {EXECUTION_FILTERS.map((f) => (
             <button
               key={f.key}
-              onClick={() => setApprovalFilter(f.key)}
+              onClick={() => setExecutionFilter(f.key)}
               className={`rounded-full border px-2.5 py-1 font-medium transition-colors duration-150 ${
-                approvalFilter === f.key
+                executionFilter === f.key
                   ? 'border-brand-600 bg-brand-50 text-brand-700'
                   : 'border-gray-200 text-gray-500 hover:border-gray-300 hover:text-gray-700'
               }`}
@@ -125,6 +162,7 @@ export default function OrdersListPage() {
             <tr>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Event</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Status</th>
+              <th className="px-4 py-2 text-left font-medium text-gray-500">Execution</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Signed</th>
               <th className="px-4 py-2 text-left font-medium text-gray-500">Approved</th>
               <th className="px-4 py-2" />
@@ -141,6 +179,12 @@ export default function OrdersListPage() {
                 </td>
                 <td className="px-4 py-2">
                   <StatusBadge status={order.order_status} styles={STATUS_STYLES} />
+                </td>
+                <td className="px-4 py-2">
+                  <StatusBadge
+                    status={order.execution_status === 'assigned' ? 'new' : order.execution_status}
+                    styles={EXECUTION_STYLES}
+                  />
                 </td>
                 <td className="px-4 py-2 text-gray-700">
                   {order.signed_at ? new Date(order.signed_at).toLocaleString() : '—'}
@@ -167,6 +211,15 @@ export default function OrdersListPage() {
                       Approve
                     </button>
                   )}
+                  {order.execution_status === 'completed' && boqByOrder[order.id] && needsReturnsChecklist(order) && (
+                    <button
+                      onClick={() => setReturnsOrder(order)}
+                      className="inline-flex items-center gap-1 text-sm font-medium text-brand-700 hover:underline"
+                    >
+                      <ClipboardCheck size={14} />
+                      Returns Checklist
+                    </button>
+                  )}
                 </td>
                 <td className="px-4 py-2 text-right">
                   <div className="flex items-center justify-end gap-2">
@@ -178,7 +231,7 @@ export default function OrdersListPage() {
                     >
                       <Eye size={16} />
                     </button>
-                    {isPlannerOrAdmin && (
+                    {canEdit(order) && (
                       <button
                         onClick={() => setEditOrder(order)}
                         title="Edit order"
@@ -190,7 +243,7 @@ export default function OrdersListPage() {
                     )}
                     {canDelete(order) && (
                       <button
-                        onClick={() => deleteOrder(order)}
+                        onClick={() => setConfirmTarget(order)}
                         disabled={busyId === order.id}
                         title="Delete order"
                         aria-label="Delete order"
@@ -205,7 +258,7 @@ export default function OrdersListPage() {
             ))}
             {visibleOrders.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-6 text-center text-gray-500">
+                <td colSpan={7} className="px-4 py-6 text-center text-gray-500">
                   No orders yet.
                 </td>
               </tr>
@@ -243,6 +296,24 @@ export default function OrdersListPage() {
           users={users}
           onClose={() => setEditOrder(null)}
           onSaved={() => { setEditOrder(null); load() }}
+        />
+      )}
+      {confirmTarget && (
+        <ConfirmModal
+          title="Delete Order"
+          message={`Delete the order for "${events[confirmTarget.event]?.name ?? `Event #${confirmTarget.event}`}"? This cannot be undone.`}
+          confirmLabel="Delete"
+          busy={busyId === confirmTarget.id}
+          onConfirm={deleteOrder}
+          onCancel={() => setConfirmTarget(null)}
+        />
+      )}
+      {returnsOrder && (
+        <ReturnsChecklistModal
+          eventId={returnsOrder.event}
+          eventName={events[returnsOrder.event]?.name ?? `Event #${returnsOrder.event}`}
+          onClose={() => setReturnsOrder(null)}
+          onDone={() => { setReturnsOrder(null); loadReturnsState() }}
         />
       )}
     </div>

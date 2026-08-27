@@ -25,17 +25,6 @@ class OrderSerializer(serializers.ModelSerializer):
         )
 
 
-class ConvertToOrderSerializer(serializers.Serializer):
-    client_id = serializers.IntegerField()
-    planner_id = serializers.IntegerField(required=False)
-    name = serializers.CharField(max_length=255)
-    type = serializers.CharField(max_length=100)
-    date_start = serializers.DateTimeField()
-    date_end = serializers.DateTimeField()
-    venue = serializers.CharField(max_length=255)
-    classification = serializers.ChoiceField(choices=Event.Classification.choices)
-
-
 class EventCommentSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(read_only=True)
 

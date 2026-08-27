@@ -10,6 +10,7 @@ urlpatterns = [
     path('api/auth/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path('api/auth/me/', MeView.as_view(), name='me'),
     path('api/', include('events.urls')),
+    path('api/', include('quotations.urls')),
     path('api/', include('policies.urls')),
     path('api/', include('inventory.urls')),
     path('api/', include('boq.urls')),

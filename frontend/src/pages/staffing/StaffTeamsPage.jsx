@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { UserPlus, UsersRound } from 'lucide-react'
 import api from '../../api/client'
 import Modal from '../../components/Modal'
 import { useAuth } from '../../auth/AuthContext'
@@ -7,10 +8,16 @@ import { SkeletonTable } from '../../components/Skeleton'
 
 const EMPTY_STAFF = { name: '', role: '', contact: '', active: true }
 
+const TABS = [
+  { key: 'staff', label: 'Staff' },
+  { key: 'teams', label: 'Teams' },
+]
+
 export default function StaffTeamsPage() {
   const { hasRole } = useAuth()
   const canManage = hasRole(roles.ADMIN, roles.EVENT_PLANNER)
 
+  const [activeTab, setActiveTab] = useState('staff')
   const [staff, setStaff] = useState(null)
   const [teams, setTeams] = useState(null)
   const [error, setError] = useState('')
@@ -35,19 +42,24 @@ export default function StaffTeamsPage() {
   if (!staff || !teams) return <SkeletonTable />
 
   return (
-    <div className="space-y-8">
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Staff</h1>
-          {canManage && (
-            <button
-              onClick={() => setShowAddStaff(true)}
-              className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              Add Staff
-            </button>
-          )}
-        </div>
+    <div>
+      <h1 className="mb-4 text-2xl font-bold text-gray-900">Staff & Teams</h1>
+
+      <div className="mb-4 flex flex-wrap gap-1 rounded-full bg-gray-100 p-1 text-xs w-fit">
+        {TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`rounded-full px-4 py-1.5 font-medium transition-colors duration-150 ${
+              activeTab === tab.key ? 'bg-white text-brand-700 shadow-sm' : 'text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {tab.label} ({tab.key === 'staff' ? staff.length : teams.length})
+          </button>
+        ))}
+      </div>
+
+      {activeTab === 'staff' && (
         <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
@@ -73,20 +85,9 @@ export default function StaffTeamsPage() {
             </tbody>
           </table>
         </div>
-      </div>
+      )}
 
-      <div>
-        <div className="mb-4 flex items-center justify-between">
-          <h1 className="text-2xl font-bold text-gray-900">Teams</h1>
-          {canManage && (
-            <button
-              onClick={() => setShowAddTeam(true)}
-              className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-            >
-              Add Team
-            </button>
-          )}
-        </div>
+      {activeTab === 'teams' && (
         <div className="space-y-3">
           {teams.map((team) => (
             <div key={team.id} className="rounded-lg border border-gray-200 bg-white p-4">
@@ -116,7 +117,28 @@ export default function StaffTeamsPage() {
           ))}
           {teams.length === 0 && <p className="text-gray-500">No teams yet.</p>}
         </div>
-      </div>
+      )}
+
+      {canManage && activeTab === 'staff' && (
+        <button
+          onClick={() => setShowAddStaff(true)}
+          aria-label="Add Staff"
+          title="Add Staff"
+          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-500 ease-out hover:scale-110 hover:rotate-12 hover:bg-brand-700 hover:shadow-xl"
+        >
+          <UserPlus size={24} />
+        </button>
+      )}
+      {canManage && activeTab === 'teams' && (
+        <button
+          onClick={() => setShowAddTeam(true)}
+          aria-label="Add Team"
+          title="Add Team"
+          className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-500 ease-out hover:scale-110 hover:rotate-12 hover:bg-brand-700 hover:shadow-xl"
+        >
+          <UsersRound size={24} />
+        </button>
+      )}
 
       {showAddStaff && (
         <AddStaffModal onClose={() => setShowAddStaff(false)} onCreated={() => { setShowAddStaff(false); load() }} />

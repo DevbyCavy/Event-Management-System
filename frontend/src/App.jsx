@@ -11,12 +11,17 @@ import CalendarPage from './pages/calendar/CalendarPage'
 import GuestsPage from './pages/guests/GuestsPage'
 import RsvpPage from './pages/guests/RsvpPage'
 import InquiriesListPage from './pages/inquiries/InquiriesListPage'
+import ProductsCatalogPage from './pages/inventory/ProductsCatalogPage'
 import ProductsListPage from './pages/inventory/ProductsListPage'
+import ReturnsReportPage from './pages/inventory/ReturnsReportPage'
 import LoginPage from './pages/LoginPage'
+import TrackingPage from './pages/logistics/TrackingPage'
 import TripMapPage from './pages/logistics/TripMapPage'
+import VehiclesCatalogPage from './pages/logistics/VehiclesCatalogPage'
 import VehiclesListPage from './pages/logistics/VehiclesListPage'
 import OrdersListPage from './pages/orders/OrdersListPage'
 import PoliciesPage from './pages/policies/PoliciesPage'
+import QuotationsListPage from './pages/quotations/QuotationsListPage'
 import RequisitionsListPage from './pages/requisitions/RequisitionsListPage'
 import StaffTeamsPage from './pages/staffing/StaffTeamsPage'
 import VendorsPage from './pages/vendors/VendorsPage'
@@ -39,13 +44,18 @@ export default function App() {
         <Route path="/events/:id" element={<EventDetailPage />} />
 
         <Route path="/inquiries" element={<InquiriesListPage />} />
+        <Route path="/quotations" element={<QuotationsListPage />} />
         <Route path="/orders" element={<OrdersListPage />} />
         <Route path="/boqs" element={<BOQsListPage />} />
         <Route path="/boqs/:id" element={<BOQDetailPage />} />
         <Route path="/requisitions" element={<RequisitionsListPage />} />
         <Route path="/products" element={<ProductsListPage />} />
+        <Route path="/products/list" element={<ProductsCatalogPage />} />
+        <Route path="/products/returns" element={<ReturnsReportPage />} />
         <Route path="/staff" element={<StaffTeamsPage />} />
         <Route path="/vehicles" element={<VehiclesListPage />} />
+        <Route path="/vehicles/list" element={<VehiclesCatalogPage />} />
+        <Route path="/tracking" element={<TrackingPage />} />
         <Route path="/trips/:id" element={<TripMapPage />} />
         <Route path="/vendors" element={<VendorsPage />} />
         <Route path="/budget" element={<BudgetPage />} />

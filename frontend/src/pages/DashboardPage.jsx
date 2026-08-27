@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom'
 import {
   Boxes,
   ClipboardList,
-  FileText,
   Inbox,
   ListChecks,
   PenSquare,
+  Receipt,
 } from 'lucide-react'
 import api from '../api/client'
 import { useAuth } from '../auth/AuthContext'
@@ -25,7 +25,7 @@ const STATUS_STYLES = {
 
 const QUICK_LINKS = [
   { to: '/inquiries', label: 'Inquiries', icon: Inbox, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
-  { to: '/orders', label: 'Orders', icon: FileText, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
+  { to: '/quotations', label: 'Quotations', icon: Receipt, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.CLIENT] },
   { to: '/boqs', label: 'BOQs', icon: ListChecks, roles: [roles.ADMIN, roles.EVENT_PLANNER] },
   { to: '/requisitions', label: 'Requisitions', icon: ClipboardList, roles: [roles.ADMIN, roles.EVENT_PLANNER, roles.ACCOUNTS] },
   { to: '/products', label: 'Store Inventory', icon: Boxes, roles: [roles.ADMIN, roles.STOREKEEPER] },
