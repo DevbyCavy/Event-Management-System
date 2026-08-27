@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #eaf1fa;
+  --color-brand-100: #cfe0f2;
+  --color-brand-200: #9dc0e6;
+  --color-brand-500: #0f5da6;
+  --color-brand-600: #084b9a;
+  --color-brand-700: #073b7a;
+  --color-brand-800: #052d5f;
+  --color-brand-900: #042450;
+
+  --color-accent-100: #eeeeef;
+  --color-accent-300: #c7c7ca;
+  --color-accent-500: #969698;
+  --color-accent-700: #6f6f72;
+}
+
+html, body, #root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: system-ui, 'Segoe UI', Roboto, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background: #fafafa;
+}
+
+@layer components {
+  .input {
+    @apply w-full rounded-md border border-gray-300 px-3 py-2 text-sm transition-colors duration-150 focus:border-brand-500 focus:outline-none focus:ring-2 focus:ring-brand-100;
+  }
+}
+
+@keyframes fade-slide-up {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-fade-slide-up {
+  animation: fade-slide-up 280ms ease-out both;
+}
+
+@keyframes icon-bounce {
+  0% { transform: scale(1); }
+  40% { transform: scale(1.25); }
+  100% { transform: scale(1); }
+}
+.animate-icon-bounce {
+  animation: icon-bounce 260ms ease-out;
+}
+
+@keyframes toast-in {
+  from { opacity: 0; transform: translate(16px, -8px); }
+  to { opacity: 1; transform: translate(0, 0); }
+}
+.animate-toast-in {
+  animation: toast-in 220ms ease-out both;
+}
+
+@keyframes toast-shrink {
+  from { width: 100%; }
+  to { width: 0%; }
+}
+.animate-toast-shrink {
+  animation: toast-shrink linear forwards;
+}

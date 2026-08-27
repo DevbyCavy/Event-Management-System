@@ -1,0 +1,7 @@
+ADMIN = 'Admin'
+EVENT_PLANNER = 'Event Planner'
+STOREKEEPER = 'Storekeeper'
+ACCOUNTS = 'Accounts'
+TEAM_LEADER = 'Team Leader'
+VENDOR = 'Vendor'
+CLIENT = 'Client'

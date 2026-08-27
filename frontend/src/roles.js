@@ -1,0 +1,7 @@
+export const ADMIN = 'Admin'
+export const EVENT_PLANNER = 'Event Planner'
+export const STOREKEEPER = 'Storekeeper'
+export const ACCOUNTS = 'Accounts'
+export const TEAM_LEADER = 'Team Leader'
+export const VENDOR = 'Vendor'
+export const CLIENT = 'Client'
