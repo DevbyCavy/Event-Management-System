@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 from django.db import transaction
+from django.http import FileResponse
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -15,6 +16,7 @@ from policies.services import unmet_policy_gates
 from requisitions.models import Requisition
 
 from .models import BOQ, BOQItem
+from .pdf import build_boq_pdf
 from .serializers import BOQItemSerializer, BOQSerializer
 
 EDITABLE_STATUSES = (BOQ.Status.PENDING, BOQ.Status.REJECTED)
@@ -83,6 +85,12 @@ class BOQViewSet(viewsets.ModelViewSet):
         boq.rejection_reason = reason
         boq.save(update_fields=['status', 'approved_by', 'approved_at', 'rejection_reason'])
         return Response(BOQSerializer(boq).data)
+
+    @action(detail=True, methods=['get'])
+    def pdf(self, request, pk=None):
+        boq = self.get_object()
+        buffer = build_boq_pdf(boq)
+        return FileResponse(buffer, as_attachment=True, filename=f'boq-{boq.id}.pdf', content_type='application/pdf')
 
 
 class BOQItemViewSet(viewsets.ModelViewSet):

@@ -60,8 +60,13 @@ export default function RequisitionsListPage() {
     try {
       await api.post(`/requisitions/${req.id}/${action}/`)
       load()
-    } catch {
-      setActionError('Action failed.')
+    } catch (err) {
+      const detail = err.response?.data?.blocked_by_policy
+        ? `Blocked by policy: ${err.response.data.blocked_by_policy.map((p) => p.title).join(', ')}`
+        : Array.isArray(err.response?.data)
+          ? err.response.data.join(' ')
+          : 'Action failed.'
+      setActionError(detail)
     } finally {
       setBusyId(null)
     }
@@ -94,7 +99,7 @@ export default function RequisitionsListPage() {
       </div>
       {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -262,8 +267,11 @@ function ProcessModal({ requisitionId, onClose, onProcessed }) {
     try {
       await api.post(`/requisitions/${requisitionId}/process/`, { payment_method: paymentMethod })
       onProcessed()
-    } catch {
-      setError('Could not process this requisition.')
+    } catch (err) {
+      const detail = err.response?.data?.blocked_by_policy
+        ? `Blocked by policy: ${err.response.data.blocked_by_policy.map((p) => p.title).join(', ')}`
+        : 'Could not process this requisition.'
+      setError(detail)
     } finally {
       setSubmitting(false)
     }

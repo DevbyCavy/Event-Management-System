@@ -1,3 +1,4 @@
+from django.http import FileResponse
 from django.utils import timezone
 from rest_framework import viewsets
 from rest_framework.decorators import action
@@ -11,6 +12,7 @@ from events.models import Event, Inquiry, Order
 from events.serializers import OrderSerializer
 
 from .models import Quotation, QuotationItem
+from .pdf import build_quotation_pdf
 from .serializers import QuotationItemSerializer, QuotationSerializer
 
 
@@ -95,6 +97,14 @@ class QuotationViewSet(viewsets.ModelViewSet):
         quotation.responded_at = timezone.now()
         quotation.save(update_fields=['status', 'responded_at'])
         return Response(QuotationSerializer(quotation).data)
+
+    @action(detail=True, methods=['get'])
+    def pdf(self, request, pk=None):
+        quotation = self.get_object()
+        buffer = build_quotation_pdf(quotation)
+        return FileResponse(
+            buffer, as_attachment=True, filename=f'quotation-{quotation.id}.pdf', content_type='application/pdf'
+        )
 
 
 class QuotationItemViewSet(viewsets.ModelViewSet):

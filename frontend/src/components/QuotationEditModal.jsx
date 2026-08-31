@@ -79,7 +79,7 @@ export default function QuotationEditModal({ quotation, onClose, onSaved }) {
         <Field label="Venue">
           <input required className="input" value={form.venue} onChange={set('venue')} />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Starts">
             <input required type="datetime-local" className="input" value={form.date_start} onChange={set('date_start')} />
           </Field>

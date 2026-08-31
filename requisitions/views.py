@@ -11,6 +11,7 @@ from boq.models import BOQItem
 from budgeting.models import BudgetItem, Payment
 from core.permissions import IsAccountsOrAdmin, IsPlannerOrAdmin
 from inventory.services import record_stock_in
+from policies.services import unmet_policy_gates
 
 from .models import Requisition
 from .serializers import RequisitionSerializer
@@ -55,6 +56,14 @@ class RequisitionViewSet(viewsets.ModelViewSet):
         requisition = self.get_object()
         if requisition.status != Requisition.Status.APPROVED:
             raise ValidationError('Only an approved requisition can be processed.')
+
+        blocking = unmet_policy_gates(requisition.event, 'requisition_processing')
+        if blocking.exists():
+            raise ValidationError({
+                'blocked_by_policy': [
+                    {'id': p.id, 'title': p.title, 'approver_role': p.approver_role} for p in blocking
+                ]
+            })
 
         payment_method = request.data.get('payment_method')
         valid_methods = dict(Payment.Method.choices)

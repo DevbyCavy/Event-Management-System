@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react'
+import { MessageSquarePlus } from 'lucide-react'
 import api from '../../api/client'
 import Modal from '../../components/Modal'
 import CreateQuotationModal from '../../components/CreateQuotationModal'
@@ -35,17 +36,11 @@ export default function InquiriesListPage() {
 
   return (
     <div>
-      <div className="mb-4 flex items-center justify-between">
+      <div className="mb-4">
         <h1 className="text-2xl font-bold text-gray-900">Inquiries</h1>
-        <button
-          onClick={() => setShowCreate(true)}
-          className="rounded-md bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700"
-        >
-          New Inquiry
-        </button>
       </div>
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -87,6 +82,15 @@ export default function InquiriesListPage() {
           </tbody>
         </table>
       </div>
+
+      <button
+        onClick={() => setShowCreate(true)}
+        aria-label="New Inquiry"
+        title="New Inquiry"
+        className="fixed bottom-6 right-6 flex h-14 w-14 items-center justify-center rounded-full bg-brand-600 text-white shadow-lg transition-all duration-500 ease-out hover:scale-110 hover:rotate-12 hover:bg-brand-700 hover:shadow-xl"
+      >
+        <MessageSquarePlus size={24} />
+      </button>
 
       {showCreate && (
         <CreateInquiryModal onClose={() => setShowCreate(false)} onCreated={() => { setShowCreate(false); load() }} />

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
-import { ClipboardPlus, Eye, Trash2 } from 'lucide-react'
+import { ClipboardPlus, Eye, FileDown, Trash2 } from 'lucide-react'
 import api from '../../api/client'
 import BOQViewModal from '../../components/BOQViewModal'
 import ConfirmModal from '../../components/ConfirmModal'
@@ -8,6 +8,7 @@ import CreateBOQModal from '../../components/CreateBOQModal'
 import RejectBOQModal from '../../components/RejectBOQModal'
 import { useAuth } from '../../auth/AuthContext'
 import * as roles from '../../roles'
+import { downloadFile } from '../../lib/download'
 import { SkeletonTable } from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 
@@ -40,6 +41,7 @@ export default function BOQsListPage() {
   const [confirmTarget, setConfirmTarget] = useState(null)
   const [rejectTarget, setRejectTarget] = useState(null)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [downloadingId, setDownloadingId] = useState(null)
 
   const load = () => {
     Promise.all([
@@ -71,6 +73,18 @@ export default function BOQsListPage() {
   )
 
   const isEditable = (boq) => boq.status === 'pending' || boq.status === 'rejected'
+
+  const handleDownload = async (boq) => {
+    setDownloadingId(boq.id)
+    setActionError('')
+    try {
+      await downloadFile(`/boqs/${boq.id}/pdf/`, `boq-${boq.id}.pdf`)
+    } catch {
+      setActionError('Could not download this BOQ as a PDF.')
+    } finally {
+      setDownloadingId(null)
+    }
+  }
 
   const deleteBoq = async () => {
     const boq = confirmTarget
@@ -128,7 +142,7 @@ export default function BOQsListPage() {
       </div>
       {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -182,6 +196,15 @@ export default function BOQsListPage() {
                       className="text-gray-400 transition-colors duration-150 hover:text-brand-700"
                     >
                       <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDownload(boq)}
+                      disabled={downloadingId === boq.id}
+                      title="Download PDF"
+                      aria-label="Download PDF"
+                      className="text-gray-400 transition-colors duration-150 hover:text-brand-700 disabled:opacity-50"
+                    >
+                      <FileDown size={16} />
                     </button>
                     {isPlannerOrAdmin && isEditable(boq) && boq.items.length === 0 && (
                       <button

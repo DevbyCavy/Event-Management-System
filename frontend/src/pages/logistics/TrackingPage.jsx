@@ -8,6 +8,7 @@ import { SkeletonBlock } from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 
 const POLL_INTERVAL_MS = 5000
+const AUTO_PING_INTERVAL_MS = 20000
 
 const TRIP_STATUS_STYLES = {
   scheduled: 'bg-gray-100 text-gray-600',
@@ -152,6 +153,7 @@ export default function TrackingPage() {
             accuracy: pos.coords.accuracy,
           })
           pollLatest()
+          setActionError('')
         } catch {
           setActionError('Could not send location.')
         }
@@ -159,6 +161,16 @@ export default function TrackingPage() {
       () => setActionError('Could not get your current location.')
     )
   }
+
+  const tripStatus = selected?.trip?.status
+
+  useEffect(() => {
+    if (!isAssignedDriver || tripStatus !== 'en_route') return
+    sendCurrentLocation()
+    const autoPingId = setInterval(sendCurrentLocation, AUTO_PING_INTERVAL_MS)
+    return () => clearInterval(autoPingId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAssignedDriver, tripStatus, tripId])
 
   if (error) return <p className="text-red-600">{error}</p>
   if (!assignments) {
@@ -357,12 +369,16 @@ export default function TrackingPage() {
                           )}
                           {selected.trip?.status === 'en_route' && (
                             <>
+                              <span className="flex items-center gap-1.5 text-xs font-medium text-green-700">
+                                <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                                Tracking active — sending every 20s
+                              </span>
                               <button
                                 disabled={busy}
                                 onClick={sendCurrentLocation}
                                 className="rounded-md bg-brand-100 px-3 py-1.5 text-sm font-medium text-brand-800 hover:bg-brand-200 disabled:opacity-60"
                               >
-                                Send My Location
+                                Send Location Now
                               </button>
                               <button
                                 disabled={busy}

@@ -193,7 +193,7 @@ export default function ProductsCatalogPage() {
         </aside>
 
         <div className="min-w-0 flex-1">
-          <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+          <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
             <table className="min-w-full divide-y divide-gray-200 text-sm">
               <thead className="bg-gray-50">
                 <tr>
@@ -424,7 +424,7 @@ function ProductFormModal({ title, product, onClose, onSaved }) {
         <Field label="Name">
           <input required className="input" value={form.name} onChange={set('name')} />
         </Field>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Brand">
             <input className="input" value={form.brand} onChange={set('brand')} />
           </Field>
@@ -432,7 +432,7 @@ function ProductFormModal({ title, product, onClose, onSaved }) {
             <input className="input" value={form.sku} onChange={set('sku')} placeholder="e.g. MBP-001" />
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Category">
             <input required className="input" value={form.category} onChange={set('category')} />
           </Field>
@@ -440,7 +440,7 @@ function ProductFormModal({ title, product, onClose, onSaved }) {
             <input className="input" value={form.color} onChange={set('color')} />
           </Field>
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label="Equipment type">
             <input required className="input" value={form.equipment_type} onChange={set('equipment_type')} />
           </Field>
@@ -452,7 +452,7 @@ function ProductFormModal({ title, product, onClose, onSaved }) {
           <input type="checkbox" checked={form.returnable} onChange={set('returnable')} />
           Returnable
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Field label={product ? 'Total quantity' : 'Initial quantity'}>
             <input required type="number" min="0" className="input" value={form.quantity_total} onChange={set('quantity_total')} />
           </Field>

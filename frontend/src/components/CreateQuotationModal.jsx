@@ -166,7 +166,7 @@ export default function CreateQuotationModal({ inquiry, onClose, onCreated }) {
 
         <div>
           <h3 className="mb-2 text-sm font-bold text-gray-900">Items</h3>
-          <div className="overflow-hidden rounded-lg border border-gray-200">
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>

@@ -156,7 +156,7 @@ export default function OrdersListPage() {
       </div>
       {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>

@@ -66,7 +66,7 @@ export default function BudgetPage() {
             </button>
           )}
         </div>
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -107,7 +107,7 @@ export default function BudgetPage() {
             </button>
           )}
         </div>
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -236,7 +236,7 @@ function AddPaymentModal({ events, onClose, onCreated }) {
             {events.map((e) => <option key={e.id} value={e.id}>{e.name}</option>)}
           </select>
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-gray-700">Type</span>
             <select className="input" value={form.type} onChange={set('type')}>

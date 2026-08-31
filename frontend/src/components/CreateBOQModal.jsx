@@ -133,7 +133,7 @@ export default function CreateBOQModal({ orders, events, onClose, onCreated }) {
 
           <div>
             <h3 className="mb-2 text-sm font-bold text-gray-900">Items</h3>
-            <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+            <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
               <table className="w-full text-sm">
                 <thead className="bg-gray-50">
                   <tr>

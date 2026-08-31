@@ -36,7 +36,7 @@ export default function BOQViewModal({ boq, eventName, products, onClose }) {
 
         <div>
           <h3 className="mb-2 text-xs font-bold uppercase tracking-wide text-gray-500">Items</h3>
-          <div className="overflow-hidden rounded-lg border border-gray-200">
+          <div className="overflow-x-auto rounded-lg border border-gray-200">
             <table className="w-full text-sm">
               <thead className="bg-gray-50">
                 <tr>

@@ -84,7 +84,7 @@ export default function PoliciesPage() {
 
       <div>
         <h1 className="mb-4 text-2xl font-bold text-gray-900">Approval History</h1>
-        <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+        <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
           <table className="min-w-full divide-y divide-gray-200 text-sm">
             <thead className="bg-gray-50">
               <tr>
@@ -162,7 +162,7 @@ function AddPolicyModal({ onClose, onCreated }) {
           <span className="mb-1 block text-sm font-medium text-gray-700">Content</span>
           <textarea required className="input" rows={3} value={form.content} onChange={set('content')} />
         </label>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           <label className="block">
             <span className="mb-1 block text-sm font-medium text-gray-700">Event type (optional)</span>
             <input className="input" value={form.event_type} onChange={set('event_type')} />

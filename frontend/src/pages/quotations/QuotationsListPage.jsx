@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { ClipboardPlus, Eye, Pencil, Trash2 } from 'lucide-react'
+import { ClipboardPlus, Eye, FileDown, Pencil, Trash2 } from 'lucide-react'
 import api from '../../api/client'
 import { useAuth } from '../../auth/AuthContext'
 import * as roles from '../../roles'
@@ -7,6 +7,7 @@ import ConfirmModal from '../../components/ConfirmModal'
 import CreateQuotationModal from '../../components/CreateQuotationModal'
 import QuotationDetailModal from '../../components/QuotationDetailModal'
 import QuotationEditModal from '../../components/QuotationEditModal'
+import { downloadFile } from '../../lib/download'
 import { SkeletonTable } from '../../components/Skeleton'
 import StatusBadge from '../../components/StatusBadge'
 
@@ -37,6 +38,7 @@ export default function QuotationsListPage() {
   const [confirmTarget, setConfirmTarget] = useState(null)
   const [showCreate, setShowCreate] = useState(false)
   const [statusFilter, setStatusFilter] = useState('all')
+  const [downloadingId, setDownloadingId] = useState(null)
 
   const isPlannerOrAdmin = hasRole(roles.ADMIN, roles.EVENT_PLANNER)
 
@@ -54,6 +56,18 @@ export default function QuotationsListPage() {
 
   const userName = (id) => users.find((u) => u.id === id)?.username ?? '—'
   const isEditable = (quotation) => quotation.status === 'draft' || quotation.status === 'rejected'
+
+  const handleDownload = async (quotation) => {
+    setDownloadingId(quotation.id)
+    setActionError('')
+    try {
+      await downloadFile(`/quotations/${quotation.id}/pdf/`, `quotation-${quotation.id}.pdf`)
+    } catch {
+      setActionError('Could not download this quotation as a PDF.')
+    } finally {
+      setDownloadingId(null)
+    }
+  }
 
   const deleteQuotation = async () => {
     const quotation = confirmTarget
@@ -100,7 +114,7 @@ export default function QuotationsListPage() {
       </div>
       {actionError && <p className="mb-3 text-sm text-red-600">{actionError}</p>}
 
-      <div className="overflow-hidden rounded-lg border border-gray-200 bg-white">
+      <div className="overflow-x-auto rounded-lg border border-gray-200 bg-white">
         <table className="min-w-full divide-y divide-gray-200 text-sm">
           <thead className="bg-gray-50">
             <tr>
@@ -131,6 +145,15 @@ export default function QuotationsListPage() {
                       className="text-gray-400 transition-colors duration-150 hover:text-brand-700"
                     >
                       <Eye size={16} />
+                    </button>
+                    <button
+                      onClick={() => handleDownload(quotation)}
+                      disabled={downloadingId === quotation.id}
+                      title="Download PDF"
+                      aria-label="Download PDF"
+                      className="text-gray-400 transition-colors duration-150 hover:text-brand-700 disabled:opacity-50"
+                    >
+                      <FileDown size={16} />
                     </button>
                     {isPlannerOrAdmin && isEditable(quotation) && (
                       <button

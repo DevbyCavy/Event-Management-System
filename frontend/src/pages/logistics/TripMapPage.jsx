@@ -6,6 +6,7 @@ import { useAuth } from '../../auth/AuthContext'
 import { SkeletonBlock } from '../../components/Skeleton'
 
 const POLL_INTERVAL_MS = 5000
+const AUTO_PING_INTERVAL_MS = 20000
 
 function Recenter({ position }) {
   const map = useMap()
@@ -90,6 +91,7 @@ export default function TripMapPage() {
             accuracy: pos.coords.accuracy,
           })
           pollLatest()
+          setActionError('')
         } catch (err) {
           setActionError('Could not send location.')
         }
@@ -97,6 +99,14 @@ export default function TripMapPage() {
       () => setActionError('Could not get your current location.')
     )
   }
+
+  useEffect(() => {
+    if (!isAssignedDriver || trip?.status !== 'en_route') return
+    sendCurrentLocation()
+    const autoPingId = setInterval(sendCurrentLocation, AUTO_PING_INTERVAL_MS)
+    return () => clearInterval(autoPingId)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isAssignedDriver, trip?.status, id])
 
   if (!trip) {
     return (
@@ -163,12 +173,16 @@ export default function TripMapPage() {
             )}
             {trip.status === 'en_route' && (
               <>
+                <span className="flex items-center gap-1.5 text-sm font-medium text-green-700">
+                  <span className="h-2 w-2 animate-pulse rounded-full bg-green-500" />
+                  Tracking active — sending your location every 20s
+                </span>
                 <button
                   disabled={busy}
                   onClick={sendCurrentLocation}
                   className="rounded-md bg-brand-100 px-4 py-2 text-sm font-medium text-brand-800 hover:bg-brand-200 disabled:opacity-60"
                 >
-                  Send My Location
+                  Send Location Now
                 </button>
                 <button
                   disabled={busy}

@@ -27,16 +27,19 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class EventCommentSerializer(serializers.ModelSerializer):
     author = serializers.PrimaryKeyRelatedField(read_only=True)
+    author_username = serializers.CharField(source='author.username', read_only=True)
 
     class Meta:
         model = EventComment
-        fields = ('id', 'event', 'author', 'comment', 'created_at')
+        fields = ('id', 'event', 'author', 'author_username', 'comment', 'created_at')
         read_only_fields = ('author', 'created_at')
 
 
 class ReturnSheetSerializer(serializers.ModelSerializer):
     dismantled_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    dismantled_by_username = serializers.CharField(source='dismantled_by.username', read_only=True)
     signed_off_by = serializers.PrimaryKeyRelatedField(read_only=True)
+    signed_off_by_username = serializers.CharField(source='signed_off_by.username', read_only=True, default=None)
 
     class Meta:
         model = ReturnSheet
